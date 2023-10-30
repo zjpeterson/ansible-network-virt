@@ -1,6 +1,4 @@
 ---
-# These tasks are to be run as the 'aap' user created by prereqs.yml
-
 - name: Login to Red Hat API
   ansible.builtin.uri:
     url: https://sso.redhat.com/auth/realms/redhat-external/protocol/openid-connect/token
