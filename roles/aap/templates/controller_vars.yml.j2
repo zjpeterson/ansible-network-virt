@@ -18,6 +18,7 @@ controller_inventories:
 controller_hosts:
   - name: hypervisor
     inventory: DHCP
+    enabled: true
     variables:
       ansible_host: "{{ ansible_host }}"
 
