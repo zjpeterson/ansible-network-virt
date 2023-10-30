@@ -1,0 +1,24 @@
+[automationcontroller]
+{{ public_dns }} ansible_connection=local
+
+[automationeda]
+{{ public_dns }} ansible_connection=local
+
+[database]
+{{ public_dns }} ansible_connection=local
+
+[all:vars]
+postgresql_admin_username=postgres
+postgresql_admin_password={{ _student_password }}
+bundle_install=true
+bundle_dir=/home/aap/{{ _installer_dir }}/bundle
+controller_admin_password={{ _student_password }}
+controller_pg_host={{ public_dns }}
+controller_pg_password={{ _student_password }}
+eda_admin_password={{ _student_password }}
+eda_pg_host={{ public_dns }}
+eda_pg_password={{ _student_password }}
+controller_main_url=https://{{ public_dns }}
+controller_license_file=/home/aap/manifest.zip
+controller_postinstall=true
+controller_postinstall_dir=/home/aap/cac

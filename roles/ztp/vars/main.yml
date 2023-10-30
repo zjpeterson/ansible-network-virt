@@ -1,0 +1,7 @@
+---
+ztp_packages:
+  - httpd
+  - dhcp-server
+ztp_services:
+  - httpd.service
+  - dhcpd.service

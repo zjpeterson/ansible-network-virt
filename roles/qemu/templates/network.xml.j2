@@ -1,0 +1,6 @@
+<network>
+  <name>student{{ _student }}</name>
+  <bridge name="virbr{{ _student }}" />
+  <forward mode="route"/>
+  <ip address="192.168.{{ _student }}.1" netmask="255.255.255.0"/>
+</network>

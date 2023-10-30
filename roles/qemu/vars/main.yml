@@ -1,0 +1,10 @@
+---
+qemu_packages:
+  - cockpit
+  - cockpit-machines
+  - qemu-kvm
+  - libvirt
+  - virt-install
+qemu_services:
+  - cockpit.socket
+  - libvirtd

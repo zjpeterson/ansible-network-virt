@@ -1,0 +1,7 @@
+venv
+*.qcow2
+*.pem
+*password.txt
+*.zip
+*/.DS_Store
+id_*

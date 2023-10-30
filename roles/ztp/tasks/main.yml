@@ -1,0 +1,45 @@
+---
+- name: Generate SSH keypair
+  vars:
+    ansible_connection: local
+  community.crypto.openssh_keypair:
+    path: "{{ playbook_dir }}/id_ansible"
+  delegate_to: localhost
+  become: false
+  register: _keypair
+
+- name: Install packages
+  ansible.builtin.dnf:
+    name: "{{ ztp_packages }}"
+    state: present
+
+- name: Set Apache to port 8080
+  ansible.builtin.lineinfile:
+    path: /etc/httpd/conf/httpd.conf
+    regexp: '^Listen '
+    line: Listen 8080
+  
+- name: Create base DHCP config
+  ansible.builtin.template:
+    src: dhcpd.conf.j2
+    dest: /etc/dhcp/dhcpd.conf
+    mode: '0644'
+
+- name: Template out python script
+  vars:
+    ztp_ssh_pubkey: "{{ _keypair.public_key }}"
+  ansible.builtin.template:
+    src: ztp.py.j2
+    dest: /var/www/html/ztp_student{{ _student }}.py
+    owner: apache
+    group: apache
+  loop: "{{ range(1, num_students | int + 1) }}"
+  loop_control:
+    loop_var: _student
+
+- name: Start and enable services
+  ansible.builtin.service:
+    name: "{{ item }}"
+    state: started
+    enabled: true
+  loop: "{{ ztp_services }}"

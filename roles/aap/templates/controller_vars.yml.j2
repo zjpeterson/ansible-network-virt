@@ -1,0 +1,48 @@
+---
+controller_organizations:
+{% for _student in range(1, num_students | int + 1) %}
+  - name: student{{ _student }}
+{% endfor %}
+
+controller_user_accounts:
+{% for _student in range(1, num_students | int + 1) %}
+  - username: student{{ _student }}
+    organization: student{{ _student }}
+    password: {{ _student_password }}
+{% endfor %}
+
+controller_inventories:
+  - name: DHCP
+    organization: Default
+
+controller_hosts:
+  - name: hypervisor
+    inventory: DHCP
+    variables:
+      ansible_host: "{{ ansible_host }}"
+
+controller_credentials:
+  - name: hypervisor
+    organization: Default
+    credential_type: Machine
+    inputs:
+      username: ec2-user
+      ssh_key_data: |
+        {% filter indent(width=8, first=false) %}{{ lookup('file', playbook_dir + '/ansible.pem') }}{% endfilter %}
+
+
+controller_roles:
+{% for _student in range(1, num_students | int + 1) %}
+  - user: student{{ _student }}
+    organization: student{{ _student }}
+    role: admin
+  - user: student{{ _student }}
+    organization: Default
+    role: member
+  - user: student{{ _student }}
+    inventory: DHCP
+    role: use
+  - user: student{{ _student }}
+    credential: hypervisor
+    role: use
+{% endfor %}

@@ -1,0 +1,40 @@
+---
+- name: Create networks
+  community.libvirt.virt_net:
+    name: "student{{ _student }}"
+    state: present
+    xml: "{{ lookup('template', 'network.xml.j2') }}"
+  loop: "{{ range(1, num_students | int + 1) }}"
+  loop_control:
+    loop_var: _student
+
+- name: Start networks
+  community.libvirt.virt_net:
+    name: "student{{ item }}"
+    state: active
+  loop: "{{ range(1, num_students | int + 1) }}"
+
+- name: Create machines
+  ansible.builtin.command:
+    cmd: >-
+      virt-install
+      --connect=qemu:///system
+      --name=student{{ item.1 }}_{{ item.0.name }}
+      --os-variant=rhel4.9
+      --arch=x86_64
+      --cpu host-model
+      --vcpus=1,sockets=1,cores=1,threads=1
+      --hvm
+      --ram=4096
+      --import
+      --disk path=/var/vm/student{{ item.1 }}_{{ item.0.file }},bus=ide,format=qcow2
+      --network network=student{{ item.1 }},model=virtio
+      --noreboot
+    creates: /etc/libvirt/qemu/student{{ item.1 }}_{{ item.0.name }}.xml
+  loop: "{{ qemu_images | product(range(1, num_students | int + 1)) }}"
+
+- name: Start machines
+  community.libvirt.virt:
+    name: student{{ item.1 }}_{{ item.0.name }}
+    state: running
+  loop: "{{ qemu_images | product(range(1, num_students | int + 1)) }}"

@@ -1,0 +1,12 @@
+---
+- name: Install packages
+  ansible.builtin.dnf:
+    name: "{{ qemu_packages }}"
+    state: present
+
+- name: Enable and start services
+  ansible.builtin.service:
+    name: "{{ item }}"
+    enabled: true
+    state: started
+  loop: "{{ qemu_services }}"

@@ -1,0 +1,4 @@
+---
+aws_region: us-east-2
+aws_ec2_ami:
+  us-east-2: ami-02b8534ff4b424939 # rhel 9.2

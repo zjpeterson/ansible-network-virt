@@ -1,0 +1,27 @@
+---
+- name: Write a static reservation into the dhcpd config
+  hosts: hypervisor
+  gather_facts: false
+  become: true
+
+  vars:
+    device_name: mydevice
+    mac_address: 00:00:00:00:00:00
+    ip_address: 1.1.1.1
+
+  tasks:
+    - name: Add block to config
+      ansible.builtin.blockinfile:
+        path: /etc/dhcp/dhcpd.conf
+        block: |
+          host {{ device_name }} {
+            hardware ethernet {{ mac_address }};
+            fixed-address {{ ip_address }};
+          }
+      notify: restart dhcpd
+
+  handlers:
+    - name: restart dhcpd
+      ansible.builtin.service:
+        name: dhcpd
+        state: restarted

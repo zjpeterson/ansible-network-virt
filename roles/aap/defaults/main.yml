@@ -1,0 +1,5 @@
+---
+num_students: 1
+aap_offline_token: "{{ undef(hint='You must provide a Red Hat Management API key from https://access.redhat.com/management/api') }}"
+aap_hash: 11e23e06da6e660c06ebd960884ae34a2ffb97a1d704579fd3ec9f6ae5f1a09a # 2.4 containerized bundle
+aap_eda_port: 444 # not 445

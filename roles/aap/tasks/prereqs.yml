@@ -1,0 +1,30 @@
+---
+- name: Create AAP user
+  ansible.builtin.user:
+    name: "{{ aap_user }}"
+    state: present
+  register: _user_out
+  become_user: root
+
+- name: Save user home
+  ansible.builtin.set_fact:
+    _user_home: "{{ _user_out.home }}"
+
+- name: Enable lingering for AAP user
+  ansible.builtin.command:
+    cmd: loginctl enable-linger {{ aap_user }}
+    creates: /var/lib/systemd/linger/{{ aap_user }}
+  become_user: root
+
+- name: Make AAP user no-password admin
+  ansible.builtin.copy:
+    content: "{{ aap_user }} ALL=(ALL) NOPASSWD:ALL"
+    dest: /etc/sudoers.d/{{ aap_user }}
+    mode: '440'
+  become_user: root
+
+- name: Install required packages
+  ansible.builtin.dnf:
+    name: "{{ aap_packages }}"
+    state: present
+  become_user: root

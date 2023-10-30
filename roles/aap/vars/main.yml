@@ -1,0 +1,6 @@
+---
+aap_user: aap
+aap_packages:
+  - ansible-core
+  - git
+  - rsync

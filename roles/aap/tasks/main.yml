@@ -1,0 +1,6 @@
+---
+- name: Install pre-requisite tasks
+  ansible.builtin.include_tasks: prereqs.yml
+
+- name: Install tasks
+  ansible.builtin.include_tasks: install.yml

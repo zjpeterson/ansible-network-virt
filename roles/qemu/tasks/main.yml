@@ -1,0 +1,12 @@
+---
+- name: Install and start virtualization services
+  ansible.builtin.include_tasks: packages.yml
+
+- name: Establish storage and get images
+  ansible.builtin.include_tasks: storage.yml
+
+- name: Configure networking and machines
+  ansible.builtin.include_tasks: config.yml
+
+- name: Configure student access
+  ansible.builtin.include_tasks: users.yml

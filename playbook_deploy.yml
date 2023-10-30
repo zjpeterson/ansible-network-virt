@@ -1,0 +1,33 @@
+---
+- name: Deploy AWS resources
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  tasks:
+    - name: Deploy AWS resources
+      ansible.builtin.include_role:
+        name: aws_ec2
+
+- name: Configure QEMU
+  hosts: ec2new
+  gather_facts: false
+  become: true
+
+  tasks:
+    - name: Wait for instance to be up
+      ansible.builtin.wait_for_connection:
+
+    - name: Configure QEMU
+      ansible.builtin.include_role:
+        name: qemu
+
+    - name: Configure ZTP elements
+      vars:
+        ztp_eda_webhook_address: "{{ private_address }}"
+      ansible.builtin.include_role:
+        name: ztp
+
+    - name: Download and install containerized AAP
+      ansible.builtin.include_role:
+        name: aap

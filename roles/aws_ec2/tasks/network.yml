@@ -1,0 +1,51 @@
+---
+- name: Create VPC
+  amazon.aws.ec2_vpc_net:
+    name: vpc-ansible
+    cidr_block: 172.31.0.0/16
+    region: "{{ aws_region }}"
+  register: _vpc
+
+- name: Create subnet
+  amazon.aws.ec2_vpc_subnet:
+    vpc_id: "{{ _vpc.vpc.id }}"
+    az: us-east-2a
+    cidr: 172.31.0.0/20
+    region: "{{ aws_region }}"
+  register: _subnet
+
+- name: Create internet gateway
+  amazon.aws.ec2_vpc_igw:
+    vpc_id: "{{ _vpc.vpc.id }}"
+    region: "{{ aws_region }}"
+  register: _igw
+
+- name: Create route table
+  amazon.aws.ec2_vpc_route_table:
+    vpc_id: "{{ _vpc.vpc.id }}"
+    subnets: "{{ _subnet.subnet.id }}"
+    routes:
+      - dest: 0.0.0.0/0
+        gateway_id: "{{ _igw.gateway_id }}"
+      # - dest: 172.31.0.0/16
+      #   gateway_id: local
+    region: "{{ aws_region }}"
+
+# - name: Find public IP of Ansible Control
+#   ansible.builtin.uri:
+#     url: https://api.ipify.org?format=json
+#     return_content: true
+#   register: _ipify
+
+- name: Create security group
+  # vars:
+  #   _update:
+  #     cidr_ip: "{{ _ipify.json.ip }}/32"
+  amazon.aws.ec2_group:
+    name: ansible
+    description: Ports for resources provisioned by Ansible
+    vpc_id: "{{ _vpc.vpc.id }}"
+    # rules: "{{ aws_security_rules | map('combine', _update) }}"
+    rules: "{{ aws_security_rules }}"
+    region: "{{ aws_region }}"
+  register: _sg

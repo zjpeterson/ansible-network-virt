@@ -1,0 +1,83 @@
+---
+# These tasks are to be run as the 'aap' user created by prereqs.yml
+
+- name: Login to Red Hat API
+  ansible.builtin.uri:
+    url: https://sso.redhat.com/auth/realms/redhat-external/protocol/openid-connect/token
+    method: POST
+    return_content: true
+    body_format: form-urlencoded
+    body:
+      grant_type: refresh_token
+      client_id: rhsm-api
+      refresh_token: "{{ aap_offline_token }}"
+  register: _rhlogin
+
+- name: Download installer tarball
+  ansible.builtin.get_url:
+    url: https://api.access.redhat.com/management/v1/images/{{ aap_hash }}/download
+    headers:
+      Authorization: Bearer {{ _rhlogin.json.access_token }}
+    dest: "{{ _user_home }}/installer.tar.gz"
+  become_user: "{{ aap_user }}"
+
+- name: Extract installer
+  ansible.builtin.unarchive:
+    src: "{{ _user_home }}/installer.tar.gz"
+    dest: "{{ _user_home }}/"
+    remote_src: true
+    list_files: true
+    exclude: inventory
+  register: _archive
+  become_user: "{{ aap_user }}"
+
+- name: Save installer directory
+  ansible.builtin.set_fact:
+    _installer_dir: "{{ _archive.files.0 }}"
+
+# should be temporary, see https://issues.redhat.com/browse/AAP-16586 (RH internal)
+- name: Fix EDA port
+  ansible.builtin.blockinfile:
+    insertafter: '^\s+name: automationeda'
+    path: "{{ _user_home }}/{{ _installer_dir }}/collections/ansible_collections/ansible/containerized_installer/playbooks/install.yml"
+    block: |
+      {% filter indent(width=6, first=true) %}
+      vars:
+        nginx_https_port: {{ aap_eda_port }}
+      {% endfilter %}
+  become_user: "{{ aap_user }}"
+
+- name: Template out inventory
+  vars:
+    _student_password: "{{ student_pswd | default('redhat') }}"
+  ansible.builtin.template:
+    src: inventory.j2
+    dest: "{{ _user_home }}/{{ _installer_dir }}/inventory"
+  become_user: "{{ aap_user }}"
+
+- name: Copy license manifest
+  ansible.builtin.copy:
+    src: manifest.zip
+    dest: "{{ _user_home }}/manifest.zip"
+  become_user: "{{ aap_user }}"
+
+- name: Create CaC directory
+  ansible.builtin.file:
+    state: directory
+    path: "{{ _user_home }}/cac"
+  become_user: "{{ aap_user }}"
+
+- name: Place CaC variables in directory
+  vars:
+    _student_password: "{{ student_pswd | default('redhat') }}"
+  ansible.builtin.copy:
+    content: "{{ lookup('template', 'controller_vars.yml.j2' ) }}"
+    dest: "{{ _user_home }}/cac/vars.yml"
+  become_user: "{{ aap_user }}"
+
+- name: Run installer
+  environment:
+    ANSIBLE_COLLECTIONS_PATH: "{{ _user_home }}/{{ _installer_dir }}/collections"
+  ansible.builtin.command:
+    cmd: ansible-playbook -i {{ _user_home }}/{{ _installer_dir }}/inventory ansible.containerized_installer.install
+  become_user: "{{ aap_user }}"

@@ -1,0 +1,6 @@
+{% for _student in range(1, num_students | int + 1) %}
+subnet 192.168.{{ _student }}.0 netmask 255.255.255.0 {
+    option routers 192.168.{{ _student }}.1;
+    option bootfile-name "http://{{ private_address }}:8080/ztp_student{{ _student }}.py";
+    }
+{% endfor %}

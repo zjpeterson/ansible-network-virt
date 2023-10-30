@@ -1,0 +1,17 @@
+---
+aws_security_rules:
+  - proto: tcp
+    ports: 22
+    cidr_ip: 0.0.0.0/0
+  - proto: tcp
+    ports: 443-444
+    cidr_ip: 0.0.0.0/0
+  - proto: tcp
+    ports: 9090
+    cidr_ip: 0.0.0.0/0
+  - proto: tcp
+    ports: 8080
+    cidr_ip: 0.0.0.0/0
+aws_ec2_name: hypervisor
+aws_ec2_type: c5n.metal
+aws_ec2_disk: 100

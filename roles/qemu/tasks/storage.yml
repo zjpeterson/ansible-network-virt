@@ -1,0 +1,22 @@
+---
+- name: Create VM directory
+  ansible.builtin.file:
+    path: /var/vm
+    state: directory
+    owner: qemu
+    group: qemu
+
+- name: Copy image files
+  ansible.builtin.copy:
+    src: "{{ item.file }}"
+    dest: /var/vm/{{ item.file }}
+  loop: "{{ qemu_images }}"
+
+- name: Create image copies
+  ansible.builtin.copy:
+    remote_src: true
+    src: /var/vm/{{ item.0.file }}
+    dest: /var/vm/student{{ item.1 }}_{{ item.0.file }}
+    owner: qemu
+    group: qemu
+  loop: "{{ qemu_images | product(range(1, num_students | int + 1)) }}"

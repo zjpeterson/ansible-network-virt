@@ -1,0 +1,46 @@
+import cli
+import urllib.request
+import re
+import ssl
+from xml.dom import minidom
+
+SSH_PUBLIC_KEY = '{{ ztp_ssh_pubkey }}'
+EDA_WEBHOOK_ADDRESS = '{{ ztp_eda_webhook_address }}'
+EDA_WEBHOOK_PORT = '{{ ztp_eda_webhook_port + (_student | int) }}'
+
+def get_serials():
+    inventory = cli.cli('show inventory | format').strip()
+    document = minidom.parseString(inventory)
+    serials = list()
+    for entry in document.getElementsByTagName('InventoryEntry'):
+        chassis = entry.getElementsByTagName('ChassisName')[0]
+        name = chassis.firstChild.data
+        if name == "Chassis" or re.match('"Switch ([0-9])"', name):
+            serials.append(entry.getElementsByTagName('SN')[0].firstChild.data)
+    print('ANSIBLE ZTP: Discovered serials {}'.format(','.join(serials)))
+    return serials
+
+def configure_management(public_key):
+    print('ANSIBLE ZTP: Configuring ansible user')
+    cli.configure('username ansible privilege 15')
+    cli.configure(['ip ssh pubkey-chain', 'username ansible', 'key-string'] + public_key + ['exit'])
+    cli.configure(['line vty 0 4', 'login local'])
+
+def call_webhook(serials, webhook_address, webhook_port):
+    headers = {"Content-Type": "application/json"}
+    data = {"serial_list": serials}
+    url = "http://{}:{}/ztp".format(webhook_address, webhook_port)
+    print('ANSIBLE ZTP: Contacting Event-Driven Ansible Webhook at {}'.format(url))
+    request = urllib.request.Request(url, data=urllib.parse.urlencode(data).encode('utf-8'), headers=headers)
+    response = urllib.request.urlopen(request, context=ssl._create_unverified_context())
+
+def main():
+    print('\nANSIBLE ZTP: Starting')
+    serials = get_serials()
+    key_split = [SSH_PUBLIC_KEY[i:i+100] for i in range(0, len(SSH_PUBLIC_KEY), 100)]
+    configure_management(key_split)
+    call_webhook(serials, EDA_WEBHOOK_ADDRESS, EDA_WEBHOOK_PORT)
+    print('\nANSIBLE ZTP: Waiting for Ansible')
+
+if __name__ == "__main__":
+    main()
