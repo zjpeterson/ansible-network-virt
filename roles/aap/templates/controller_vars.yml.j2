@@ -30,6 +30,52 @@ controller_credentials:
       ssh_key_data: |
         {% filter indent(width=8, first=false) %}{{ lookup('file', playbook_dir + '/ansible.pem') }}{% endfilter %}
 
+  - name: network
+    organization: Default
+    credential_type: Machine
+    inputs:
+      username: ansible
+      ssh_key_data: |
+        {% filter indent(width=8, first=false) %}{{ lookup('file', playbook_dir + '/id_ansible') }}{% endfilter %}
+
+
+controller_projects:
+  - name: ZTP
+    organization: Default
+    scm_type: git
+    scm_url: https://github.com/zjpeterson/ansible-network-virt.git
+
+controller_templates:
+  - name: Add DHCP Static Reservation
+    organization: Default
+    inventory: DHCP
+    credentials: hypervisor
+    project: ZTP
+    playbook: playbook_dhcpd_static.yml
+    survey_enabled: true
+    survey_spec:
+      name: survey
+      description: survey
+      spec:
+        - question_name: Device Name
+          required: true
+          type: text
+          variable: device_name
+          min: 0
+          max: 20
+          default: mydevice
+        - question_name: MAC Address
+          required: true
+          type: text
+          variable: mac_address
+          min: 0
+          max: 20
+          default: 00:00:00:00:00:00
+        - question_name: IP Address
+          required: true
+          type: text
+          variable: ip_address
+          default: 1.1.1.1
 
 controller_roles:
 {% for _student in range(1, num_students | int + 1) %}
@@ -40,9 +86,9 @@ controller_roles:
     organization: Default
     role: member
   - user: student{{ _student }}
-    inventory: DHCP
+    credential: network
     role: use
   - user: student{{ _student }}
-    credential: hypervisor
-    role: use
+    job_template: Add DHCP Static Reservation
+    role: execute
 {% endfor %}
