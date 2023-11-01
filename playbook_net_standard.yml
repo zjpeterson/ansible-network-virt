@@ -1,0 +1,24 @@
+---
+- name: Configure network devices
+  hosts: all
+
+  vars:
+    net_standard_vlans:
+      - name: desktops
+        vlan_id: 20
+      - name: servers
+        vlan_id: 30
+      - name: printers
+        vlan_id: 40
+
+  tasks:
+    - name: Set hostname to match inventory
+      cisco.ios.ios_hostname:
+        config:
+          hostname: "{{ inventory_hostname }}"
+        state: merged
+
+    - name: Establish standard VLANs
+      cisco.ios.ios_vlans:
+        config: "{{ net_standard_vlans }}"
+        state: merged
