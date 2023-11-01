@@ -44,12 +44,33 @@
   retries: 10
   register: _ec2_info_out
 
+- name: Create instance DNS
+  amazon.aws.route53:
+    state: present
+    record: "{{ aws_ec2_name }}.{{ aws_dns_zone }}"
+    zone: "{{ aws_dns_zone }}"
+    type: CNAME
+    value: "{{ _ec2_info_out.instances.0.public_dns_name }}"
+    overwrite: true
+    wait: true
+
+# - name: Get instance DNS
+#   amazon.aws.route53:
+#     state: get
+#     record: "{{ aws_ec2_name }}.{{ aws_dns_zone }}"
+#     zone: "{{ aws_dns_zone }}"
+#     type: CNAME
+#   register: _route53
+
 - name: Add host to inventory
   ansible.builtin.add_host:
     groups: ec2new
     name: "{{ aws_ec2_name }}"
     ansible_host: "{{ _ec2_info_out.instances.0.public_ip_address }}"
     private_address: "{{ _ec2_info_out.instances.0.private_ip_address }}"
+    private_dns: "{{ _ec2_info_out.instances.0.private_dns_name }}"
     public_dns: "{{ _ec2_info_out.instances.0.public_dns_name }}"
+    public_dns_alias: "{{ aws_ec2_name }}.{{ aws_dns_zone }}"
+    # dns_server: "{{ lookup('community.general.dig', _route53.nameservers.1) }}"
     ansible_user: ec2-user
     ansible_ssh_private_key_file: "{{ playbook_dir }}/ansible.pem"
