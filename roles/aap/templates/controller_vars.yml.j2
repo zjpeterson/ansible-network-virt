@@ -1,4 +1,8 @@
 ---
+controller_settings:
+  settings:
+    AWX_COLLECTIONS_ENABLED: false
+
 controller_organizations:
 {% for _student in range(1, num_students | int + 1) %}
   - name: student{{ _student }}
