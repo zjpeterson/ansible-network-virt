@@ -4,3 +4,6 @@
 
 - name: Install tasks
   ansible.builtin.include_tasks: install.yml
+
+- name: Configure EDA
+  ansible.builtin.include_tasks: eda_config.yml

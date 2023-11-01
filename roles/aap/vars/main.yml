@@ -4,3 +4,4 @@ aap_packages:
   - ansible-core
   - git
   - rsync
+aap_repo: https://github.com/zjpeterson/ansible-network-virt.git

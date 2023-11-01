@@ -1,0 +1,39 @@
+---
+- name: Get Controller token
+  ansible.controller.token:
+    description: EDA Controller
+    scope: write
+    controller_host: "{{ public_dns }}"
+    controller_username: admin
+    controller_password: "{{ student_pswd | default('redhat') }}"
+    validate_certs: false
+
+- name: Add config to EDA
+  ansible.builtin.uri:
+    url: https://{{ public_dns }}:{{ aap_eda_port }}/api/eda/v1/{{ item.endpoint }}/
+    method: POST
+    body_format: json
+    body: "{{ item.payload }}"
+    url_username: admin
+    url_password: "{{ student_pswd | default('redhat') }}"
+    validate_certs: false
+    force_basic_auth: true
+    status_code:
+      - 201
+      - 400
+      - 409
+  register: _eda_project
+  changed_when: _eda_project.status == 201
+  loop:
+    - endpoint: projects
+      payload:
+        name: ZTP
+        url: "{{ aap_repo }}"
+    - endpoint: decision-environments
+      payload:
+        name: ansible-rulebook
+        image_url: quay.io/ansible/ansible-rulebook
+    - endpoint: users/me/awx-tokens
+      payload:
+        name: admin
+        token: "{{ controller_token.token }}"
