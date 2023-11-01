@@ -69,7 +69,7 @@
   vars:
     _student_password: "{{ student_pswd | default('redhat') }}"
   ansible.builtin.copy:
-    content: "{{ lookup('template', 'controller_vars.yml.j2' ) }}"
+    content: "{{ lookup('template', 'controller_vars.yml.j2') }}"
     dest: "{{ _user_home }}/cac/vars.yml"
   become_user: "{{ aap_user }}"
 
