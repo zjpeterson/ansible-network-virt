@@ -5,7 +5,7 @@
   sources:
     - ansible.eda.webhook:
         host: 0.0.0.0
-        port: 5002
+        port: "{{ webhook_port }}"
       filters:
         - ansible.eda.insert_hosts_to_meta:
             host_path: event.payload.serial_list
