@@ -3,3 +3,5 @@ collections:
   - amazon.aws
   - community.crypto
   - community.libvirt
+  - ansible.controller
+  - cisco.ios
