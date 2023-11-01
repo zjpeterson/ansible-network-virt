@@ -11,7 +11,16 @@
   ansible.builtin.user:
     name: student{{ item }}
     state: present
-    groups: wheel
-    append: true
+    # groups: wheel
+    # append: true
     password: "{{ student_pswd | ansible.builtin.password_hash('sha512') }}"
   loop: "{{ range(1, num_students | int + 1) }}"
+
+- name: Make sudent users no-password admin
+  ansible.builtin.copy:
+    content: |
+      {% for _num in range(1, num_students | int + 1) %}
+      student{{ _num }} ALL=(ALL) NOPASSWD:ALL
+      {% endfor %}
+    dest: /etc/sudoers.d/students
+    mode: '440'
