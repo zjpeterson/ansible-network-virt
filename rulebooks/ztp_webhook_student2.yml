@@ -18,4 +18,4 @@
       action:
         run_job_template:
           name: Standard switch configuration
-          organization: Default
+          organization: student2
