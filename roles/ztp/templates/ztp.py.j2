@@ -2,6 +2,7 @@ import cli
 import urllib.request
 import re
 import ssl
+import json
 from xml.dom import minidom
 
 SSH_PUBLIC_KEY = '{{ ztp_ssh_pubkey }}'
@@ -15,7 +16,7 @@ def get_serials():
     for entry in document.getElementsByTagName('InventoryEntry'):
         chassis = entry.getElementsByTagName('ChassisName')[0]
         name = chassis.firstChild.data
-        if name == "Chassis" or re.match('"Switch ([0-9])"', name):
+        if name == '"Chassis"' or re.match('"Switch ([0-9])"', name):
             serials.append(entry.getElementsByTagName('SN')[0].firstChild.data)
     print('ANSIBLE ZTP: Discovered serials {}'.format(','.join(serials)))
     return serials
@@ -31,7 +32,7 @@ def call_webhook(serials, webhook_address, webhook_port):
     data = {"serial_list": serials}
     url = "http://{}:{}/ztp".format(webhook_address, webhook_port)
     print('ANSIBLE ZTP: Contacting Event-Driven Ansible Webhook at {}'.format(url))
-    request = urllib.request.Request(url, data=urllib.parse.urlencode(data).encode('utf-8'), headers=headers)
+    request = urllib.request.Request(url, data=json.dumps(data).encode('utf-8'), headers=headers)
     response = urllib.request.urlopen(request, context=ssl._create_unverified_context())
 
 def main():
