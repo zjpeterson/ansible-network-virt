@@ -49,6 +49,12 @@ controller_projects:
     organization: Default
     scm_type: git
     scm_url: https://github.com/zjpeterson/ansible-network-virt.git
+{% for _student in range(1, num_students | int + 1) %}
+  - name: ZTP{{ _student }}
+    organization: student{{ _student }}
+    scm_type: git
+    scm_url: https://github.com/zjpeterson/ansible-network-virt.git
+{% endfor %}
 
 controller_templates:
   - name: Add DHCP Static Reservation
