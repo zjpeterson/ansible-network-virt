@@ -4,9 +4,8 @@
 
   vars:
     net_interfaces:
-      config:
-        - name: GigabitEthernet1
-          description: Configured by Ansible
+      - name: GigabitEthernet1
+        description: Configured by Ansible
 
   tasks:
     - name: Set hostname to match inventory
@@ -15,7 +14,7 @@
           hostname: "{{ inventory_hostname }}"
         state: merged
 
-    - name: Establish standard VLANs
+    - name: Set interface configs
       cisco.ios.ios_interfaces:
         config: "{{ net_interfaces }}"
         state: merged
