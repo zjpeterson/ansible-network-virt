@@ -2,4 +2,4 @@
 num_students: 1
 qemu_images:
   - name: c8kv
-    file: c8000v-universalk9_8G_vga.17.09.04.qcow2
+    file: c8000v-universalk9_8G_serial.17.09.04.qcow2
