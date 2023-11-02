@@ -16,4 +16,5 @@
         run_job_template:
           name: Standard switch configuration
           organization: student1
-          limit: "{{ event.payload.serial_list }}"
+          job_args:
+            limit: "{{ event.payload.serial_list }}"
