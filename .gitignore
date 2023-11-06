@@ -3,5 +3,5 @@ venv
 *.pem
 *password.txt
 *.zip
-*/.DS_Store
+*.DS_Store
 id_*
