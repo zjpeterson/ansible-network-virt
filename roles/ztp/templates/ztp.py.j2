@@ -7,7 +7,7 @@ from xml.dom import minidom
 
 SSH_PUBLIC_KEY = '{{ ztp_ssh_pubkey }}'
 EDA_WEBHOOK_ADDRESS = '{{ ztp_eda_webhook_address }}'
-EDA_WEBHOOK_PORT = '{{ ztp_eda_webhook_port + (_student | int) }}'
+EDA_WEBHOOK_PORT = '{{ ztp_eda_webhook_port }}'
 
 def get_serials():
     inventory = cli.cli('show inventory | format').strip()
