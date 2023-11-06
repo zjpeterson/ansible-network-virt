@@ -5,10 +5,7 @@
   sources:
     - ansible.eda.webhook:
         host: 0.0.0.0
-        port: "{{ student | int + 5000 }}"
-      filters:
-        - ansible.eda.insert_hosts_to_meta:
-            host_path: event.payload.serial_list
+        port: 5000
 
   rules:
     - name: Fire on ztp endpoint events
@@ -17,5 +14,7 @@
           - event.meta.endpoint == 'ztp'
       action:
         run_job_template:
-          name: Standard switch configuration
+          name: Standard network configuration
           organization: student{{ student }}
+          job_args:
+            limit: "{{ event.payload.serial_list }}"
