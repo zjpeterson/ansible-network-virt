@@ -34,28 +34,29 @@
   ansible.builtin.set_fact:
     _installer_dir: "{{ _archive.files.0 }}"
 
-- name: EDA tasks
-  when: inventory_hostname in groups.eda
-  block:
-    # should be temporary, see https://issues.redhat.com/browse/AAP-16586 (RH internal)
-    - name: Fix EDA port
-      ansible.builtin.blockinfile:
-        insertafter: '^\s+name: automationeda'
-        path: "{{ _user_home }}/{{ _installer_dir }}/collections/ansible_collections/ansible/containerized_installer/playbooks/install.yml"
-        block: |
-          {% filter indent(width=6, first=true) %}
-          vars:
-            nginx_https_port: {{ aap_eda_port }}
-          {% endfilter %}
-      become_user: "{{ aap_user }}"
+# - name: EDA tasks
+#   when: inventory_hostname in groups.eda
+#   block:
+#     # should be temporary, see https://issues.redhat.com/browse/AAP-16586 (RH internal)
+#     - name: Fix EDA port
+#       ansible.builtin.blockinfile:
+#         insertafter: '^\s+name: automationeda'
+#         path: "{{ _user_home }}/{{ _installer_dir }}/collections/ansible_collections/ansible/containerized_installer/playbooks/install.yml"
+#         block: |
+#           {% filter indent(width=6, first=true) %}
+#           vars:
+#             nginx_https_port: {{ aap_eda_port }}
+#           {% endfilter %}
+#       become_user: "{{ aap_user }}"
 
-    - name: Template out inventory (EDA)
-      vars:
-        _student_password: "{{ student_pswd | default('redhat') }}"
-      ansible.builtin.template:
-        src: inventory_eda.j2
-        dest: "{{ _user_home }}/{{ _installer_dir }}/inventory"
-      become_user: "{{ aap_user }}"
+- name: Template out inventory (EDA)
+  vars:
+    _student_password: "{{ student_pswd | default('redhat') }}"
+  ansible.builtin.template:
+    src: inventory_eda.j2
+    dest: "{{ _user_home }}/{{ _installer_dir }}/inventory"
+  become_user: "{{ aap_user }}"
+  when: inventory_hostname in groups.eda
 
 - name: Non-EDA tasks
   when: inventory_hostname in groups.hypervisor
