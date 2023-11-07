@@ -85,6 +85,11 @@
 #     type: CNAME
 #   register: _route53
 
+- name: Save lab info
+  ansible.builtin.template:
+    src: lab_info.html.j2
+    dest: "{{ playbook_dir }}/lab_info.html"
+
 - name: Add host to inventory
   ansible.builtin.add_host:
     groups:
