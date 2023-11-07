@@ -12,6 +12,9 @@ aws_security_rules:
   - proto: tcp
     ports: 8080
     cidr_ip: 0.0.0.0/0
+  - proto: tcp
+    ports: 5000
+    group_name: ansible
 aws_ec2_name:
   hypervisor: hypervisor
   eda: eda
