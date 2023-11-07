@@ -28,7 +28,7 @@
       --ram=4096
       --import
       --disk path=/var/vm/student{{ item.1 }}_{{ item.0.file }},bus=ide,format=qcow2
-      --network network=student{{ item.1 }},model=virtio
+      --network bridge=virbr{{ item.1 }},model=virtio
       --noreboot
     creates: /etc/libvirt/qemu/student{{ item.1 }}_{{ item.0.name }}.xml
   loop: "{{ qemu_images | product(range(1, num_students | int + 1)) }}"
