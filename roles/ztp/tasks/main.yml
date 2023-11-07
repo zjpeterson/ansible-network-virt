@@ -25,6 +25,13 @@
     dest: /etc/dhcp/dhcpd.conf
     mode: '0644'
 
+- name: Copy lab info to content location
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/lab_info.html"
+    dest: /var/www/html/index.html
+    owner: apache
+    group: apache
+
 - name: Template out python script
   vars:
     ztp_ssh_pubkey: "{{ _keypair.public_key }}"

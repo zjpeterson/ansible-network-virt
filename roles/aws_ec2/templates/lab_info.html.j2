@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+table {
+  font-family: Arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+th {
+  background-color: #f2f2f2;
+}
+</style>
+<title>Lab Information</title>
+</head>
+<body>
+
+<h2>Lab Information</h2>
+
+<p>Your username for all common systems is <strong>studentX</strong> where X is your assigned student number. Your username for EDA Controller is <strong>admin</strong>.</p>
+<p>Your password for all systems is: <strong>{{ student_pswd }}</strong></p>
+
+<table>
+  <tr>
+    <th>Purpose</th>
+    <th>Location</th>
+  </tr>
+  <tr>
+    <td><strong>Common</strong> Automation Controller</td>
+    {%- set _link = 'https://' + aws_ec2_name.hypervisor + '.' + aws_dns_zone -%}
+    <td><a href="{{ _link }}">{{ _link }}</a></td>
+  </tr>
+  <tr>
+    <td><strong>Common</strong> Cockpit</td>
+    {%- set _link = 'https://' + aws_ec2_name.hypervisor + '.' + aws_dns_zone + ':9090' -%}
+    <td><a href="{{ _link }}">{{ _link }}</a></td>
+  </tr>
+  {% for _student in range(1, num_students | int + 1) %}
+  <tr>
+    <td><strong>Student {{ _student }}</strong> EDA Controller</td>
+    {%- set _link = 'https://' + aws_ec2_name.eda + _student | string + '.' + aws_dns_zone -%}
+    <td><a href="{{ _link }}">{{ _link }}</a></td>
+  </tr>
+  <tr>
+    <td><strong>Student {{ _student }}</strong> ZTP Python Script</td>
+    {%- set _link = 'https://' + aws_ec2_name.hypervisor + '.' + aws_dns_zone + ':8080/ztp_student' + _student | string + '.py' -%}
+    <td><a href="{{ _link }}">{{ _link }}</a></td>
+  </tr>
+  {% endfor %}
+</table>
+
+</body>
+</html>
