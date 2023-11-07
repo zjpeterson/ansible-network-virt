@@ -41,7 +41,7 @@
   # vars:
   #   _update:
   #     cidr_ip: "{{ _ipify.json.ip }}/32"
-  amazon.aws.ec2_group:
+  amazon.aws.ec2_security_group:
     name: ansible
     description: Ports for resources provisioned by Ansible
     vpc_id: "{{ _vpc.vpc.id }}"
