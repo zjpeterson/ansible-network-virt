@@ -1,4 +1,13 @@
 ---
+- name: Wait for Controller to be available
+  ansible.builtin.uri:
+    url: https://{{ hostvars[groups.hypervisor.0]['public_dns'] }}/api/v2/ping/
+    method: GET
+    validate_certs: false
+  register: _ping
+  until: not _ping.failed
+  run_once: true
+
 - name: Get Controller token
   ansible.controller.token:
     description: EDA Controller
