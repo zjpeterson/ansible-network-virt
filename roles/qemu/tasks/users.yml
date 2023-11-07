@@ -1,11 +1,7 @@
 ---
-- name: Determine student password
+- name: Load student password
   ansible.builtin.set_fact:
-    student_pswd: "{{ lookup('ansible.builtin.password', playbook_dir + '/student_password.txt', length=10, chars=['ascii_letters', 'digits']) }}"
-
-- name: Show password
-  ansible.builtin.debug:
-    msg: Student password will be {{ student_pswd }}
+    student_pswd: "{{ hostvars.localhost.student_pswd | default('redhat') }}"
 
 - name: Create student users
   ansible.builtin.user:

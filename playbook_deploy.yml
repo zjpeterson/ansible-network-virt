@@ -5,6 +5,10 @@
   gather_facts: false
 
   tasks:
+    - name: Determine student password
+      ansible.builtin.set_fact:
+        student_pswd: "{{ lookup('ansible.builtin.password', playbook_dir + '/student_password.txt', length=10, chars=['ascii_letters', 'digits']) }}"
+
     - name: Deploy AWS resources
       ansible.builtin.include_role:
         name: aws_ec2
