@@ -1,4 +1,9 @@
 ---
+- name: Load student password for EDA hosts
+  ansible.builtin.set_fact:
+    student_pswd: "{{ hostvars[groups.hypervisor.0]['student_pswd'] | default('redhat') }}"
+  when: inventory_hostname in groups.eda
+
 - name: Install pre-requisite tasks
   ansible.builtin.include_tasks: prereqs.yml
 
@@ -7,3 +12,4 @@
 
 - name: Configure EDA
   ansible.builtin.include_tasks: eda_config.yml
+  when: inventory_hostname in groups.eda

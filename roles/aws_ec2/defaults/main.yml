@@ -1,5 +1,6 @@
 ---
 aws_region: us-east-2
-aws_dns_zone: sandbox470.opentlc.com
+aws_dns_zone: sandbox1715.opentlc.com
 aws_ec2_ami:
   us-east-2: ami-02b8534ff4b424939 # rhel 9.2
+num_students: 1

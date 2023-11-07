@@ -28,6 +28,7 @@
 - name: Template out python script
   vars:
     ztp_ssh_pubkey: "{{ _keypair.public_key }}"
+    ztp_eda_webhook_address: "{{ hostvars['eda' + _student | string]['private_address'] }}"
   ansible.builtin.template:
     src: ztp.py.j2
     dest: /var/www/html/ztp_student{{ _student }}.py

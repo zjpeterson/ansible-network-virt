@@ -3,10 +3,11 @@
   ansible.controller.token:
     description: EDA Controller
     scope: write
-    controller_host: "{{ public_dns }}"
+    controller_host: "{{ hostvars[groups.hypervisor.0]['public_dns'] }}"
     controller_username: admin
     controller_password: "{{ student_pswd | default('redhat') }}"
     validate_certs: false
+  run_once: true
 
 - name: Add config to EDA
   ansible.builtin.uri:

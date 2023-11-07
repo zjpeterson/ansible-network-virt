@@ -1,0 +1,15 @@
+[automationeda]
+{{ private_dns }} ansible_connection=local
+
+[database]
+{{ private_dns }} ansible_connection=local
+
+[all:vars]
+postgresql_admin_username=postgres
+postgresql_admin_password={{ _student_password }}
+bundle_install=true
+bundle_dir=/home/aap/{{ _installer_dir }}/bundle
+eda_admin_password={{ _student_password }}
+eda_pg_host={{ private_dns }}
+eda_pg_password={{ _student_password }}
+controller_main_url=https://{{ hostvars[groups.hypervisor.0]['public_dns_alias'] }}

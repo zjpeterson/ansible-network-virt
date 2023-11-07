@@ -12,6 +12,10 @@ aws_security_rules:
   - proto: tcp
     ports: 8080
     cidr_ip: 0.0.0.0/0
-aws_ec2_name: hypervisor
-aws_ec2_type: c5n.metal
+aws_ec2_name:
+  hypervisor: hypervisor
+  eda: eda
+aws_ec2_type:
+  hypervisor: c5n.metal
+  eda: c5.large
 aws_ec2_disk: 100

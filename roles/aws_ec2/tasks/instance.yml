@@ -16,10 +16,24 @@
     mode: '400'
   when: _key.key.private_key is defined
 
-- name: Provision EC2 instance
+- name: Build instance requirements
+  vars:
+    _init:
+      name: hypervisor
+      purpose: hypervisor
+      type: "{{ aws_ec2_type.hypervisor }}"
+    _add:
+      name: eda{{ item }}
+      purpose: eda
+      type: "{{ aws_ec2_type.eda }}"
+  ansible.builtin.set_fact:
+    _ec2_instances: "{{ _ec2_instances | default([_init]) + [_add] }}"
+  loop: "{{ range(1, num_students | int + 1) }}"
+
+- name: Provision EC2 instances
   amazon.aws.ec2_instance:
-    name: "{{ aws_ec2_name }}"
-    instance_type: "{{ aws_ec2_type }}"
+    name: "{{ item.name }}"
+    instance_type: "{{ item.type }}"
     image_id: "{{ aws_ec2_ami[aws_region] }}"
     volumes:
       - device_name: /dev/sda1
@@ -33,13 +47,21 @@
     network:
       assign_public_ip: true
       delete_on_termination: true
+    tags:
+      purpose: "{{ item.purpose }}"
   register: _instance
+  loop: "{{ _ec2_instances }}"
+
+- name: Combine instance IDs
+  ansible.builtin.set_fact:
+    _instance_ids: "{{ _instance_ids | default([]) + item.instance_ids }}"
+  loop: "{{ _instance.results }}"
 
 - name: Get public IP
   amazon.aws.ec2_instance_info:
-    instance_ids: "{{ _instance.instance_ids }}"
+    instance_ids: "{{ _instance_ids }}"
     region: us-east-2
-  until: _instance.instances.0.public_ip_address is defined
+  until: _ec2_info_out.instances.0.public_ip_address is defined
   delay: 2
   retries: 10
   register: _ec2_info_out
@@ -47,12 +69,13 @@
 - name: Create instance DNS
   amazon.aws.route53:
     state: present
-    record: "{{ aws_ec2_name }}.{{ aws_dns_zone }}"
+    record: "{{ item.tags.Name }}.{{ aws_dns_zone }}"
     zone: "{{ aws_dns_zone }}"
     type: CNAME
-    value: "{{ _ec2_info_out.instances.0.public_dns_name }}"
+    value: "{{ item.public_dns_name }}"
     overwrite: true
     wait: true
+  loop: "{{ _ec2_info_out.instances }}"
 
 # - name: Get instance DNS
 #   amazon.aws.route53:
@@ -64,13 +87,16 @@
 
 - name: Add host to inventory
   ansible.builtin.add_host:
-    groups: ec2new
-    name: "{{ aws_ec2_name }}"
-    ansible_host: "{{ _ec2_info_out.instances.0.public_ip_address }}"
-    private_address: "{{ _ec2_info_out.instances.0.private_ip_address }}"
-    private_dns: "{{ _ec2_info_out.instances.0.private_dns_name }}"
-    public_dns: "{{ _ec2_info_out.instances.0.public_dns_name }}"
-    public_dns_alias: "{{ aws_ec2_name }}.{{ aws_dns_zone }}"
+    groups:
+      - all_ec2
+      - "{{ item.tags.purpose }}"
+    name: "{{ item.tags.Name }}"
+    ansible_host: "{{ item.public_ip_address }}"
+    private_address: "{{ item.private_ip_address }}"
+    private_dns: "{{ item.private_dns_name }}"
+    public_dns: "{{ item.public_dns_name }}"
+    public_dns_alias: "{{ item.tags.Name }}.{{ aws_dns_zone }}"
     # dns_server: "{{ lookup('community.general.dig', _route53.nameservers.1) }}"
     ansible_user: ec2-user
     ansible_ssh_private_key_file: "{{ playbook_dir }}/ansible.pem"
+  loop: "{{ _ec2_info_out.instances }}"
