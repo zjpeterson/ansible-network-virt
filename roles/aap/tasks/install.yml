@@ -19,6 +19,7 @@
       Authorization: Bearer {{ _rhlogin.json.access_token }}
     dest: "{{ _user_home }}/installer.tar.gz"
   become_user: "{{ aap_user }}"
+  throttle: 1
 
 - name: Extract installer
   ansible.builtin.unarchive:
