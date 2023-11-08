@@ -27,7 +27,7 @@
       --hvm
       --ram=4096
       --import
-      --disk path=/var/vm/student{{ item.1 }}_{{ item.0.file }},bus=ide,format=qcow2
+      --disk path=/var/vm/student{{ item.1 }}_{{ item.0.name }},bus=ide,format=qcow2
       --network bridge=virbr{{ item.1 }},model=virtio
       --noreboot
     creates: /etc/libvirt/qemu/student{{ item.1 }}_{{ item.0.name }}.xml

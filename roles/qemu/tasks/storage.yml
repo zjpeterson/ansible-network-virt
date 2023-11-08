@@ -16,7 +16,7 @@
   ansible.builtin.copy:
     remote_src: true
     src: /var/vm/{{ item.0.file }}
-    dest: /var/vm/student{{ item.1 }}_{{ item.0.file }}
+    dest: /var/vm/student{{ item.1 }}_{{ item.0.name }}
     owner: qemu
     group: qemu
   loop: "{{ qemu_images | product(range(1, num_students | int + 1)) }}"
