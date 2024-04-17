@@ -13,12 +13,6 @@
     name: "{{ ztp_packages }}"
     state: present
 
-- name: Set Apache to port 8080
-  ansible.builtin.lineinfile:
-    path: /etc/httpd/conf/httpd.conf
-    regexp: '^Listen '
-    line: Listen 8080
-  
 - name: Create base DHCP config
   ansible.builtin.template:
     src: dhcpd.conf.j2
