@@ -50,7 +50,7 @@ th {
   </tr>
   <tr>
     <td><strong>Student {{ _student }}</strong> ZTP Python Script</td>
-    {%- set _link = 'https://' + aws_ec2_name.hypervisor + '.' + aws_dns_zone + '/ztp_student' + _student | string + '.py' -%}
+    {%- set _link = 'http://' + aws_ec2_name.hypervisor + '.' + aws_dns_zone + '/ztp_student' + _student | string + '.py' -%}
     <td><a href="{{ _link }}">{{ _link }}</a></td>
   </tr>
   {% endfor %}
