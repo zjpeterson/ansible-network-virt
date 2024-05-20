@@ -91,6 +91,8 @@
       become_user: "{{ aap_user }}"
 
 - name: Run installer
+  vars:
+    ansible_command_timeout: 300
   environment:
     ANSIBLE_COLLECTIONS_PATH: "{{ _user_home }}/{{ _installer_dir }}/collections"
   ansible.builtin.command:
