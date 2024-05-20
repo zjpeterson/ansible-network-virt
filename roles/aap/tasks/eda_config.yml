@@ -41,8 +41,8 @@
         url: "{{ aap_repo }}"
     - endpoint: decision-environments
       payload:
-        name: ansible-rulebook
-        image_url: quay.io/ansible/ansible-rulebook
+        name: Supported RHEL9
+        image_url: registry.redhat.io/ansible-automation-platform-24/de-supported-rhel9
     - endpoint: users/me/awx-tokens
       payload:
         name: admin
